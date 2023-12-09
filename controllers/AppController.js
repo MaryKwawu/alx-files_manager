@@ -1,22 +1,17 @@
 #!/usr/bin/node
 
-const redisClient = require('../utils/redis');
-const dbClient = require('../utils/db');
+const express = require('express');
+const AppController = require('../controllers/AppController');
+const UsersController = require('../controllers/UsersController');
+const AuthController = require('../controllers/AuthController');
 
-class AppController {
-  static getStatus(req, res) {
-    if (redisClient.isAlive() && dbClient.isAlive()) {
-      res.json({ redis: true, db: true });
-      res.end();
-    }
-  }
+const router = express.Router();
 
-  static async getStats(req, res) {
-    const users = await dbClient.nbUsers();
-    const files = await dbClient.nbFiles();
-    res.json({ users, files });
-    res.end();
-  }
-}
+router.get('/status', AppController.getStatus);
+router.get('/stats', AppController.getStats);
+router.post('/users', UsersController.postNew);
+router.get('/connect', AuthController.getConnect);
+router.get('/disconnect', AuthController.getDisconnect);
+router.get('/users/me', AuthController.getMe);
 
-module.exports = AppController;
+module.exports = router;
